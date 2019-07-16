@@ -7,7 +7,6 @@ data<- read.table ("AraucariaSamples.csv", sep=",", header=T)
 coord_p<- data.frame(data$Longitude, data$Latitude)
 coord_p
 
-
 library(ecospat)
 setwd ("C:\\Users\\sara.varela\\Documents\\CIENCIAS\\ecoClimate\\baseline_1950\\")
 clima_0<- list.files ("C:\\Users\\sara.varela\\Documents\\CIENCIAS\\ecoClimate\\baseline_1950\\", pattern=".txt")
@@ -50,3 +49,4 @@ points(nicho_lgm [, 1],  nicho_lgm[, 12], pch=16, col="#50000050")
 
 points (nicho_pres_cnrm [, 1],  nicho_pres[, 12], pch=16, col="#20305050")
 points (nicho_lgm_cnrm [, 1],  nicho_pres[, 12], pch=16, col="#20605050")
+
