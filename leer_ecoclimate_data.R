@@ -88,7 +88,7 @@ map_holocene<- CCSMpres[[1]]$bio.1*0
 map_lgmaximum<- CCSMpres[[1]]$bio.1*0
 sta<- 0
 areas_res<- NULL
-
+res_maps<- list ()
 x<- 1
 for (i in 1:7){
   nicho_pres<- as.data.frame (extract (lala[[x]], coord))
@@ -103,7 +103,7 @@ for (i in 1:7){
   
   datos<- datos [complete.cases(datos), ]
   # set percentile to be drop out
-  x1<- 0.02
+  x1<- 0.01
   
   min_t<- quantile (datos$bio.1, x1)
   max_t<- quantile (datos$bio.1, 1-x1)
@@ -135,10 +135,8 @@ for (i in 1:7){
   map_pres_precipmin<- reclassify (lala[[x]]$bio.16, c(-Inf, min_pmin, 0, min_pmin, max_pmin, 1, max_pmin, +Inf, 0))
   map_ts<- reclassify (lala[[x]]$bio.4, c(-Inf, min_ts, 0, min_ts, max_ts, 1, max_ts, +Inf, 0))
   
-  map1<- map_pres * map_pres_tmin * map_pres_tmax * map_ts *
-    map_pres_precip * map_pres_precipmax * map_pres_precipmin 
+  map1<- map_pres * map_pres_tmin * map_pres_tmax * map_ts * map_pres_precip * map_pres_precipmax * map_pres_precipmin 
   map1<- mask (map1, costa)
-  
   
   map_pres<- reclassify (lala[[x+1]]$bio.1, c(-Inf, min_t, 0, min_t, max_t, 1, max_t, +Inf, 0))
   map_pres_tmin<- reclassify (lala[[x+1]]$bio.11, c(-Inf, min_tmin, 0, min_tmin, max_tmin, 1, max_tmin, +Inf, 0))
@@ -148,12 +146,10 @@ for (i in 1:7){
   map_pres_precipmin<- reclassify (lala[[x+1]]$bio.16, c(-Inf, min_pmin, 0, min_pmin, max_pmin, 1, max_pmin, +Inf, 0))
   map_ts<- reclassify (lala[[x]]$bio.4, c(-Inf, min_ts, 0, min_ts, max_ts, 1, max_ts, +Inf, 0))
   
-  
   map2<- map_pres * map_pres_tmin * map_pres_tmax * map_ts *
     map_pres_precip * map_pres_precipmax * map_pres_precipmin 
   
   map2<- mask (map2, costa)
-  
   
   map_pres<- reclassify (lala[[x+2]]$bio.1, c(-Inf, min_t, 0, min_t, max_t, 1, max_t, +Inf, 0))
   map_pres_tmin<- reclassify (lala[[x+2]]$bio.11, c(-Inf, min_tmin, 0, min_tmin, max_tmin, 1, max_tmin, +Inf, 0))
@@ -168,7 +164,8 @@ for (i in 1:7){
   map3<- mask (map3, costa)
   
   stab<- map1*map2*map3
-  
+  stab2<- map1+map2+map3
+  res_maps [[i]]<- stab2
   todo_1_0<- extract (stab, coord)
   matri_1_0<- extract (stab, coord2)
   big_area_1_0<- extract (stab, araucaria) [[1]]
@@ -245,8 +242,17 @@ for (i in 1:7){
 }
 
 
-
-
+## the other figures
+pdf ("stab_ecoclimate.pdf")
+par (mfrow =c(2,4))
+for (i in 1:7){
+plot (res_maps [[1]], ylim=c(-45, -10), axes=F, box=F, 
+      legend=F, main=modelos [i])
+plot (araucaria, add=T)
+points (coord2)
+plot (wrld_simpl, add=T)
+}
+dev.off()
 
 alt2<- resample (alt, map1, method="bilinear")
 alt_pres<- data.frame (alt= extract (alt2, coord), time= 0)
@@ -261,9 +267,6 @@ boxplot (alt_datos$alt ~alt_datos$time,
          col="grey", border="gray50", axes=F) 
 axis (1, labels=c("present", "Mid-Holocene", "LGM"), at=c(1,2,3))
 axis(2)
-
-summary (alt_pres)
-summary (alt_glm)
 
 pdf("alt_tiempo.pdf")
 par (mfrow=c(1,3))
@@ -288,27 +291,29 @@ axis(2)
 
 dev.off()
 
-
+setwd ("C:\\Users\\sara.varela\\Documents\\CIENCIAS\\mariana_araucaria")
 # ensemble 
-pdf("alt_tiempo.pdf")
+
+pdf("ensemble.pdf")
 par (mfrow=c(1,3), mar=c(0,0,5,0))
 plot (map_lgmaximum, xlim=c(-65, 30), 
       ylim=c(-40, 5), axes=F, box=F, 
-      main="LGM distribution", legend=F, zlim=c(4,7))
+      main="LGM distribution", legend=F, zlim=c(2,7))
 points (coord_glm, col="#00006090", pch=16)
 plot (wrld_simpl, add=T)
 plot (map_holocene, xlim=c(-65, 30), 
       ylim=c(-40, 5), axes=F, box=F, 
-      main="Holocene distribution", legend=F, zlim=c(4,7))
+      main="Holocene distribution", legend=F, zlim=c(2,7))
 points (coord_hol, col="#00006090", pch=16)
 plot (wrld_simpl, add=T)
 plot (map_presente, xlim=c(-65, 30), 
       ylim=c(-40, 5), axes=F, box=F, 
-      main="present distribution", zlim=c(4,7))
+      main="present distribution", zlim=c(2,7))
 plot (araucaria, add=T)
 points (coord2)
 plot (wrld_simpl, add=T)
 dev.off()
+
 
 pdf("stability.pdf")
 palette (colorRampPalette(c("red", "blue"))(7))
@@ -317,14 +322,21 @@ plot (wrld_simpl, xlim=c(-60, -30),
 points (coord, col=sta, pch=16)
 dev.off()
 
+nombres<- rep (modelos, 3)
+
 library (ggplot2)
-a<- data.frame (area=as.vector (t(areas_res)), time=c(23,6,0))
+variable<- nombres [order (rep (modelos, 3))]
+length (variable)
+dim (a)
+a<- data.frame (area=as.vector (t(areas_res)), time=c(23,6,0), variable) 
+
+
 areas_plot<- ggplot(a, aes(x=time,y=area)) + geom_smooth(color="#00006090") + geom_point (color="#00006090")
 pdf("area.pdf")
 plot (areas_plot)
 dev.off()
-sta<- sta + coord3$stable
-areas_res<- rbind (areas,  areas_res)
 
-
+pdf("area_modelos.pdf")
+ggplot(a, aes(x=time,y=area)) + geom_line(aes(colour=variable))
+dev.off()
 

@@ -8,6 +8,7 @@ setwd("C:\\Users\\sara.varela\\Documents\\CIENCIAS\\mariana_araucaria")
 costa<- readShapePoly ("ne_10m_land.shp")
 
 # load paleoclim layers
+setwd ("C:\\Users\\sara.varela\\Documents\\CIENCIAS\\mariana_araucaria\\paleoclim_org")
 carpetas<- list.files ()
 i<- 8
 for (i in 1:8){
@@ -56,7 +57,7 @@ datos<- datos [complete.cases(datos), ]
 summary (datos)
 
 # set percentile to drop out
-x1<- 0.07
+x1<- 0.01
 
 min_t<- quantile (datos$bio_1, x1)
 max_t<- quantile (datos$bio_1, 1-x1)
@@ -102,48 +103,56 @@ eval(parse(text=foo))
 
 # build raw figure
 
-tiff ("lala.tif",  width = 500, height = 1000, units = "px")
+tiff ("PaleoClim_envelope.tif",  width = 500, height = 1000, units = "px")
 par (mfrow=c(2,4))
 plot (map_1, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="present", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="present", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 plot (araucaria, add=T)
 points (coord2)
 
 plot (map_2, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="0.3-4.2 kybp", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="0.3-4.2 kybp", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 points (polen [polen$X0.3_4.2 ==1,2:3 ])
 
 plot (map_3, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="4.2-8.3 kybp", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="4.2-8.3 kybp", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 points (polen [polen$X4.2_8.3 ==1, 2:3 ])
 
 plot (map_4, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="8.3-11.7 kybp", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="8.3-11.7 kybp", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 points (polen [polen$X8.3_11.7 ==1,2:3  ])
 
 plot (map_5, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="11.7-12.9 kybp", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="11.7-12.9 kybp", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 points (polen [polen$X11.7_12.9 ==1, 2:3 ])
 
 plot (map_6, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="12.9-14.7 kybp", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="12.9-14.7 kybp", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 points (polen [polen$X12.9_14.7 ==1, 2:3 ])
 
 plot (map_7, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="14.7-17 kybp", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="14.7-17 kybp", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 points (polen [polen$X14.7_17 ==1, 2:3 ])
 
 plot (map_8, col=c("#00000000","#00006090"), legend=F, axes=F, box=F, 
-      main="LGM", xlim=c(-55, -30), ylim=c(-45, 0))
+      main="LGM", xlim=c(-55, -30), ylim=c(-45, -20))
 plot (wrld_simpl, add=T)
 points (polen [polen$lgm ==1, 2:3 ])
 
 dev.off()
 
+stabi<- (map_1 + map_2 + map_3 + map_4 + map_5 + map_6 + map_7 + map_8)
+
+pdf ("stability_paleoclim.pdf")
+plot (stabi)
+plot (araucaria, add=T)
+points (coord2)
+plot (wrld_simpl, add=T)
+dev.off()
